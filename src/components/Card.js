@@ -8,6 +8,7 @@ function Card(props) {
         className="group__image"
         src={props.card.link}
         onClick={handleClick}
+        alt={props.card.name}
       />
       <button className="group__delete-icon" type="button"></button>
       <h2 className="group__name">{props.card.name}</h2>

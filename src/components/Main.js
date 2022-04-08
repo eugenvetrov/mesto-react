@@ -9,25 +9,17 @@ function Main(props) {
   const [userAvatar, setUserAvatar] = useState("");
   const [cards, setCards] = useState([]);
   useEffect(() => {
-    api
-      .getUserInfo()
-      .then((userInfo) => {
+    Promise.all([api.getUserInfo(), api.getCards()])
+      .then(([userInfo, cards]) => {
         setUserName(userInfo.name);
         setUserDescription(userInfo.about);
         setUserAvatar(userInfo.avatar);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    api
-      .getCards()
-      .then((cards) => {
         setCards(cards);
       })
       .catch((err) => {
         console.log(err);
       });
-  });
+  }, []);
   const Cards = cards.map((item) => {
     return <Card key={item._id} card={item} onCardClick={props.onCardClick} />;
   });
