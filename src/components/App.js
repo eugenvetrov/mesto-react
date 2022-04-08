@@ -3,11 +3,13 @@ import Header from "./Header.js";
 import Main from "./Main.js";
 import Footer from "./Footer.js";
 import PopupWithForm from "./PopupWithForm.js";
+import ImagePopup from "./ImagePopup.js";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState();
 
   const handleEditAvatarClick = () => {
     setIsEditAvatarPopupOpen(true);
@@ -21,14 +23,19 @@ function App() {
     setIsAddPlacePopupOpen(true);
   };
 
-  const closeAllPopups = (e) => {
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
+  };
+
+  const closeAllPopups = (event) => {
     if (
-      e.target.classList.contains("popup_opened") ||
-      e.target.classList.contains("popup__close-icon")
+      event.target.classList.contains("popup_opened") ||
+      event.target.classList.contains("popup__close-icon")
     ) {
       setIsEditProfilePopupOpen(false);
       setIsAddPlacePopupOpen(false);
       setIsEditAvatarPopupOpen(false);
+      setSelectedCard(null);
     }
   };
 
@@ -36,9 +43,10 @@ function App() {
     <div className="page">
       <Header />
       <Main
-        onEditProfile={() => handleEditProfileClick()}
-        onAddPlace={() => handleAddPlaceClick()}
-        onEditAvatar={() => handleEditAvatarClick()}
+        onEditProfile={handleEditProfileClick}
+        onAddPlace={handleAddPlaceClick}
+        onEditAvatar={handleEditAvatarClick}
+        onCardClick={handleCardClick}
       />
       <PopupWithForm
         title="Редактировать профиль"
@@ -123,7 +131,7 @@ function App() {
         name="popup_delete-card"
         submitValue="Да"
       ></PopupWithForm>
-
+      <ImagePopup card={selectedCard} onClose={(e) => closeAllPopups(e)} />
       <Footer />
     </div>
   );
