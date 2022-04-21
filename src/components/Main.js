@@ -1,28 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import api from "../utils/api.js";
+import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 import defaultUserImg from "../images/default-user.png";
 import Card from "./Card.js";
 
 function Main(props) {
-  const [userName, setUserName] = useState("");
-  const [userDescription, setUserDescription] = useState("");
-  const [userAvatar, setUserAvatar] = useState("");
   const [cards, setCards] = useState([]);
   useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getCards()])
-      .then(([userInfo, cards]) => {
-        setUserName(userInfo.name);
-        setUserDescription(userInfo.about);
-        setUserAvatar(userInfo.avatar);
+    Promise.all([api.getCards()])
+      .then(([cards]) => {
         setCards(cards);
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
+  const currentUser = useContext(CurrentUserContext);
   const Cards = cards.map((item) => {
-    return <Card key={item._id} card={item} onCardClick={props.onCardClick} />;
+    return (
+      <Card
+        key={item._id}
+        card={item}
+        onCardClick={props.onCardClick}
+        onCardLike={handleCardLike}
+      />
+    );
   });
+
+  function handleCardLike(card) {
+    const isLiked = card.likes.some((i) => i._id === currentUser._id);
+    const request = isLiked
+      ? api.deleteLikeCard(card._id)
+      : api.putLikeCard(card._id);
+    request.then((newCard) => {
+      setCards((cards) => cards.map((c) => (c._id === card._id ? newCard : c)));
+    });
+  }
 
   return (
     <main className="main">
@@ -32,17 +45,21 @@ function Main(props) {
           onClick={props.onEditAvatar}
         ></div>
         <img
-          src={userAvatar ? userAvatar : defaultUserImg}
+          src={currentUser ? currentUser.avatar : defaultUserImg}
           className="profile__avatar"
           alt="аватар профиля"
         />
-        <h1 className="profile__info-name">{userName}</h1>
+        <h1 className="profile__info-name">
+          {currentUser ? currentUser.name : ""}
+        </h1>
         <button
           className="profile__info-edit"
           type="button"
           onClick={props.onEditProfile}
         ></button>
-        <p className="profile__info-description">{userDescription}</p>
+        <p className="profile__info-description">
+          {currentUser ? currentUser.about : ""}
+        </p>
         <button
           className="profile__add"
           type="button"

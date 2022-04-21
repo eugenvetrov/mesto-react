@@ -1,6 +1,23 @@
+import { useContext } from "react";
+import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
+
 function Card(props) {
+  const currentUser = useContext(CurrentUserContext);
+  const isOwn = props.card.owner._id === currentUser._id;
+  const isLiked = props.card.likes.some((i) => i._id === currentUser._id);
+
+  const cardDeleteButtonClassName = `group__delete-icon ${
+    isOwn ? "" : "group__delete-icon_disable"
+  }`;
+  const cardLikeButtonClassName = `group__like-icon ${
+    isLiked ? "group__like-icon_active" : ""
+  }`;
+
   function handleClick() {
     props.onCardClick(props.card);
+  }
+  function handleLikeClick() {
+    props.onCardLike(props.card);
   }
   return (
     <article className="group__rectangle">
@@ -10,12 +27,13 @@ function Card(props) {
         onClick={handleClick}
         alt={props.card.name}
       />
-      <button className="group__delete-icon" type="button"></button>
+      <button className={cardDeleteButtonClassName} type="button"></button>
       <h2 className="group__name">{props.card.name}</h2>
       <button className="group__like" type="button">
         <div
-          className="group__like-icon"
+          className={cardLikeButtonClassName}
           alt="Отметить как понравившееся"
+          onClick={handleLikeClick}
         ></div>
       </button>
       <p className="group__like-number">{props.card.likes.length}</p>
