@@ -4,25 +4,25 @@ import PopupWithForm from "./PopupWithForm.js";
 
 function EditProfilePopup(props) {
   const currentUser = useContext(CurrentUserContext);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [values, setValues] = useState({ name: "", about: "" });
   useEffect(() => {
     if (currentUser) {
-      setName(currentUser.name);
-      setDescription(currentUser.about);
+      setValues({ name: currentUser.name, about: currentUser.about });
     }
-  }, [currentUser]);
-  const handleNameChange = (e) => {
-    setName(e.target.value);
-  };
-  const handleDescriptionChange = (e) => {
-    setDescription(e.target.value);
+  }, [currentUser, props.isOpen]);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
   function handleSubmit(e) {
     e.preventDefault();
     props.onUpdateUser({
-      name,
-      about: description,
+      name: values.name,
+      about: values.about,
     });
   }
   return (
@@ -41,9 +41,9 @@ function EditProfilePopup(props) {
         id="profile-name"
         minLength="2"
         maxLength="40"
-        value={name}
+        value={values.name}
         required
-        onChange={handleNameChange}
+        onChange={handleChange}
       />
       <span className="popup__error" id="profile-name-error"></span>
       <input
@@ -53,9 +53,9 @@ function EditProfilePopup(props) {
         id="profile-description"
         minLength="2"
         maxLength="200"
-        value={description}
+        value={values.about}
         required
-        onChange={handleDescriptionChange}
+        onChange={handleChange}
       />
       <span className="popup__error" id="profile-description-error"></span>
     </PopupWithForm>

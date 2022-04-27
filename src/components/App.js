@@ -9,12 +9,15 @@ import ImagePopup from "./ImagePopup.js";
 import EditProfilePopup from "./EditProfilePopup.js";
 import EditAvatarPopup from "./EditAvatarPopup.js";
 import AddPlacePopup from "./AddPlacePopup.js";
+import PopupWithConfirmation from "./PopupWithConfirmation.js";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [cardForDelete, setCardForDelete] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [cards, setCards] = useState([]);
 
@@ -23,9 +26,7 @@ function App() {
       .getUserInfo()
       .then((user) => setCurrentUser(user))
       .catch((error) => console.log(error));
-  }, []);
 
-  useEffect(() => {
     api
       .getCards()
       .then((cards) => {
@@ -69,11 +70,20 @@ function App() {
   }
 
   function handleCardDelete(card) {
+    setCardForDelete(card);
+    setIsDeleteCardPopupOpen(true);
+  }
+
+  function handleDeleteCard(event) {
+    event.preventDefault();
+    console.log(cardForDelete);
     api
-      .deleteCard(card)
+      .deleteCard(cardForDelete)
       .then(() => {
-        setCards(cards.filter((c) => c != card));
+        console.log();
+        setCards(cards.filter((c) => c != cardForDelete));
       })
+      .then(setIsDeleteCardPopupOpen(false))
       .catch((err) => {
         console.log(err);
       });
@@ -110,15 +120,10 @@ function App() {
   };
 
   const closeAllPopups = (event) => {
-    if (
-      event.target.classList.contains("popup_opened") ||
-      event.target.classList.contains("popup__close-icon")
-    ) {
-      setIsEditProfilePopupOpen(false);
-      setIsAddPlacePopupOpen(false);
-      setIsEditAvatarPopupOpen(false);
-      setSelectedCard(null);
-    }
+    setIsEditProfilePopupOpen(false);
+    setIsAddPlacePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
+    setSelectedCard(null);
   };
 
   return (
@@ -158,6 +163,15 @@ function App() {
           submitValue="Да"
         ></PopupWithForm>
         <ImagePopup card={selectedCard} onClose={(e) => closeAllPopups(e)} />
+
+        <PopupWithConfirmation
+          title="Вы уверены?"
+          name="popup_delete-card"
+          submitValue="Да"
+          isOpen={isDeleteCardPopupOpen}
+          onClose={closeAllPopups}
+          onSubmit={handleDeleteCard}
+        />
         <Footer />
       </div>
     </CurrentUserContext.Provider>

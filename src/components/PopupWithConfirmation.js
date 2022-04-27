@@ -1,12 +1,12 @@
-function PopupWithForm(props) {
+function PopupWithConfirmation(props) {
   const handleCloseOverlay = (event) => {
     if (event.target.classList.contains("popup_opened")) props.onClose();
   };
   return (
     <div
-      className={`popup popup_background_form popup_${props.name} ${
-        props.isOpen ? "popup_opened" : ""
-      }`}
+      className={`popup popup_background_form popup_delete-card popup_${
+        props.name
+      } ${props.isOpen ? "popup_opened" : ""}`}
       onClick={handleCloseOverlay}
     >
       <div className="popup__container">
@@ -16,7 +16,7 @@ function PopupWithForm(props) {
           onClick={props.onClose}
         ></button>
         <form
-          className="popup__form popup__form_profile"
+          className="popup__form popup__form_delete-card"
           name={`${props.name}`}
           autoComplete="off"
           noValidate
@@ -33,4 +33,4 @@ function PopupWithForm(props) {
     </div>
   );
 }
-export default PopupWithForm;
+export default PopupWithConfirmation;
