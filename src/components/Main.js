@@ -1,41 +1,21 @@
-import { useState, useEffect, useContext } from "react";
-import api from "../utils/api.js";
+import { useContext } from "react";
 import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 import defaultUserImg from "../images/default-user.png";
 import Card from "./Card.js";
 
 function Main(props) {
-  const [cards, setCards] = useState([]);
-  useEffect(() => {
-    Promise.all([api.getCards()])
-      .then(([cards]) => {
-        setCards(cards);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
   const currentUser = useContext(CurrentUserContext);
-  const Cards = cards.map((item) => {
+  const Cards = props.cards.map((item) => {
     return (
       <Card
         key={item._id}
         card={item}
         onCardClick={props.onCardClick}
-        onCardLike={handleCardLike}
+        onCardLike={props.onCardLike}
+        onCardDelete={props.onCardDelete}
       />
     );
   });
-
-  function handleCardLike(card) {
-    const isLiked = card.likes.some((i) => i._id === currentUser._id);
-    const request = isLiked
-      ? api.deleteLikeCard(card._id)
-      : api.putLikeCard(card._id);
-    request.then((newCard) => {
-      setCards((cards) => cards.map((c) => (c._id === card._id ? newCard : c)));
-    });
-  }
 
   return (
     <main className="main">

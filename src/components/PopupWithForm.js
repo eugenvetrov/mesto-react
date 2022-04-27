@@ -1,9 +1,4 @@
 function PopupWithForm(props) {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("submit");
-  };
-
   return (
     <div
       className={`popup popup_background_form popup_${props.name} ${
@@ -20,9 +15,9 @@ function PopupWithForm(props) {
         <form
           className="popup__form popup__form_profile"
           name={`${props.name}`}
-          onSubmit={handleSubmit}
           autoComplete="off"
           noValidate
+          onSubmit={props.onSubmit}
         >
           <h2 className="popup__title">{props.title}</h2>
           {props.children}
