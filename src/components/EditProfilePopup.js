@@ -4,12 +4,27 @@ import PopupWithForm from "./PopupWithForm.js";
 
 function EditProfilePopup(props) {
   const currentUser = useContext(CurrentUserContext);
-  const [values, setValues] = useState({ name: "", about: "" });
+  const [values, setValues] = useState({
+    name: "",
+    about: "",
+  });
+  const [formErrors, setFormErrors] = useState({ name: "", about: "" });
+  const [fieldValid, setFieldValid] = useState({ name: true, about: true });
+  const [formValid, setFormValid] = useState(true);
+
   useEffect(() => {
     if (currentUser) {
-      setValues({ name: currentUser.name, about: currentUser.about });
+      setValues((prev) => ({
+        ...prev,
+        name: currentUser.name,
+        about: currentUser.about,
+      }));
     }
   }, [currentUser, props.isOpen]);
+
+  useEffect(() => {
+    setFormValid(!Object.values(fieldValid).some((item) => item === false));
+  }, [fieldValid]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -17,13 +32,39 @@ function EditProfilePopup(props) {
       ...prev,
       [name]: value,
     }));
+    validateField(name, value);
   };
+
+  const validateField = (field, value) => {
+    if ((fieldValid[field] = value.length >= 2 && value.length <= 40)) {
+      setFieldValid((prev) => ({
+        ...prev,
+        [field]: true,
+      }));
+      setFormErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
+    } else {
+      setFieldValid((prev) => ({
+        ...prev,
+        [field]: false,
+      }));
+      setFormErrors((prev) => ({
+        ...prev,
+        [field]: "Недопустимое количество символов",
+      }));
+    }
+  };
+
   function handleSubmit(e) {
     e.preventDefault();
-    props.onUpdateUser({
-      name: values.name,
-      about: values.about,
-    });
+    formValid
+      ? props.onUpdateUser({
+          name: values.name,
+          about: values.about,
+        })
+      : alert("Простите! Какое-то из полей заполнено некорректно.");
   }
   return (
     <PopupWithForm
@@ -33,6 +74,7 @@ function EditProfilePopup(props) {
       isOpen={props.isOpen}
       onClose={(e) => props.onClose(e)}
       onSubmit={(e) => handleSubmit(e)}
+      formValid={formValid}
     >
       <input
         className="popup__text popup__text_profile-name"
@@ -45,7 +87,12 @@ function EditProfilePopup(props) {
         required
         onChange={handleChange}
       />
-      <span className="popup__error" id="profile-name-error"></span>
+      <span
+        className="popup__error popup__error_visible"
+        id="profile-name-error"
+      >
+        {formErrors.name}
+      </span>
       <input
         className="popup__text popup__text_profile-description"
         type="text"
@@ -57,7 +104,12 @@ function EditProfilePopup(props) {
         required
         onChange={handleChange}
       />
-      <span className="popup__error" id="profile-description-error"></span>
+      <span
+        className="popup__error popup__error_visible"
+        id="profile-description-error"
+      >
+        {formErrors.about}
+      </span>
     </PopupWithForm>
   );
 }

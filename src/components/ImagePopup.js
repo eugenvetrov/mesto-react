@@ -1,10 +1,13 @@
 function ImagePopup({ card, onClose }) {
+  const handleCloseOverlay = (event) => {
+    if (event.target.classList.contains("popup_opened")) onClose();
+  };
   return (
     <div
       className={`popup popup_background_fullscreen popup_fullscreen-image ${
         card ? "popup_opened" : ""
       }`}
-      onClick={onClose}
+      onClick={handleCloseOverlay}
     >
       <figure className="popup__fullscreen">
         <button

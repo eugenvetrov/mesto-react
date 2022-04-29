@@ -76,11 +76,9 @@ function App() {
 
   function handleDeleteCard(event) {
     event.preventDefault();
-    console.log(cardForDelete);
     api
       .deleteCard(cardForDelete)
       .then(() => {
-        console.log();
         setCards(cards.filter((c) => c != cardForDelete));
       })
       .then(setIsDeleteCardPopupOpen(false))
@@ -157,12 +155,7 @@ function App() {
           onAddPlaces={handleAddPlace}
         />
 
-        <PopupWithForm
-          title="Вы уверены?"
-          name="popup_delete-card"
-          submitValue="Да"
-        ></PopupWithForm>
-        <ImagePopup card={selectedCard} onClose={(e) => closeAllPopups(e)} />
+        <ImagePopup card={selectedCard} onClose={closeAllPopups} />
 
         <PopupWithConfirmation
           title="Вы уверены?"
