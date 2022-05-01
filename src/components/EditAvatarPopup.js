@@ -1,15 +1,42 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import PopupWithForm from "./PopupWithForm";
 
 function EditAvatarPopup(props) {
   const avatarInputRef = useRef();
+  const [link, setLink] = useState("");
+  const [formValid, setFormValid] = useState(true);
+  const [errorText, setErrorText] = useState("");
+
+  useEffect(() => {
+    console.log(link);
+    if (link !== "") {
+      setFormValid(
+        link.match(/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*$/i)
+          ? true
+          : false
+      );
+    }
+  }, [link]);
+
+  useEffect(() => {
+    formValid
+      ? setErrorText("")
+      : setErrorText("Пожалуйста, введите ссылку на изображение.");
+  }, [formValid]);
+
+  function handleChange() {
+    setLink(avatarInputRef.current.value);
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    props.onUpdateAvatar({
-      avatar: avatarInputRef.current.value,
-    });
+    if (link.match(/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*$/i)) {
+      props.onUpdateAvatar({
+        avatar: avatarInputRef.current.value,
+      });
+    } else {
+      alert("Простите! Указанная ссылка не является достаточно валидной.");
+    }
   }
   return (
     <PopupWithForm
@@ -19,6 +46,7 @@ function EditAvatarPopup(props) {
       isOpen={props.isOpen}
       onClose={(e) => props.onClose(e)}
       onSubmit={(e) => handleSubmit(e)}
+      formValid={formValid}
     >
       <input
         className="popup__text popup__text_profile-avatar"
@@ -28,8 +56,14 @@ function EditAvatarPopup(props) {
         placeholder="Ссылка на аватар"
         required
         ref={avatarInputRef}
+        onChange={handleChange}
       />
-      <span className="popup__error" id="profile-avatar-error"></span>
+      <span
+        className="popup__error  popup__error_visible"
+        id="profile-avatar-error"
+      >
+        {errorText}
+      </span>
     </PopupWithForm>
   );
 }

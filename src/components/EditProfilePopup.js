@@ -9,8 +9,7 @@ function EditProfilePopup(props) {
     about: "",
   });
   const [formErrors, setFormErrors] = useState({ name: "", about: "" });
-  const [fieldValid, setFieldValid] = useState({ name: true, about: true });
-  const [formValid, setFormValid] = useState(true);
+  const [formValid, setFormValid] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -23,8 +22,8 @@ function EditProfilePopup(props) {
   }, [currentUser, props.isOpen]);
 
   useEffect(() => {
-    setFormValid(!Object.values(fieldValid).some((item) => item === false));
-  }, [fieldValid]);
+    setFormValid(!Object.values(formErrors).some((item) => item !== ""));
+  }, [formErrors]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -36,20 +35,12 @@ function EditProfilePopup(props) {
   };
 
   const validateField = (field, value) => {
-    if ((fieldValid[field] = value.length >= 2 && value.length <= 40)) {
-      setFieldValid((prev) => ({
-        ...prev,
-        [field]: true,
-      }));
+    if ((formErrors[field] = value.length >= 2 && value.length <= 40)) {
       setFormErrors((prev) => ({
         ...prev,
         [field]: "",
       }));
     } else {
-      setFieldValid((prev) => ({
-        ...prev,
-        [field]: false,
-      }));
       setFormErrors((prev) => ({
         ...prev,
         [field]: "Недопустимое количество символов",
@@ -59,6 +50,7 @@ function EditProfilePopup(props) {
 
   function handleSubmit(e) {
     e.preventDefault();
+
     formValid
       ? props.onUpdateUser({
           name: values.name,
