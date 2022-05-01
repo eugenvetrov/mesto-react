@@ -8,8 +8,6 @@ function EditProfilePopup(props) {
     name: "",
     about: "",
   });
-  const [formErrors, setFormErrors] = useState({ name: "", about: "" });
-  const [formValid, setFormValid] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
@@ -21,37 +19,19 @@ function EditProfilePopup(props) {
     }
   }, [currentUser, props.isOpen]);
 
-  useEffect(() => {
-    setFormValid(!Object.values(formErrors).some((item) => item !== ""));
-  }, [formErrors]);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
     setValues((prev) => ({
       ...prev,
       [name]: value,
     }));
-    validateField(name, value);
-  };
-
-  const validateField = (field, value) => {
-    if ((formErrors[field] = value.length >= 2 && value.length <= 40)) {
-      setFormErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
-    } else {
-      setFormErrors((prev) => ({
-        ...prev,
-        [field]: "Недопустимое количество символов",
-      }));
-    }
+    props.validateField(name, value);
   };
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    formValid
+    const isFieldsNotEmpty = Object.values(values).some((item) => item !== "");
+    props.formValid && isFieldsNotEmpty
       ? props.onUpdateUser({
           name: values.name,
           about: values.about,
@@ -66,7 +46,7 @@ function EditProfilePopup(props) {
       isOpen={props.isOpen}
       onClose={(e) => props.onClose(e)}
       onSubmit={(e) => handleSubmit(e)}
-      formValid={formValid}
+      formValid={props.formValid}
     >
       <input
         className="popup__text popup__text_profile-name"
@@ -83,7 +63,7 @@ function EditProfilePopup(props) {
         className="popup__error popup__error_visible"
         id="profile-name-error"
       >
-        {formErrors.name}
+        {props.formErrors.name}
       </span>
       <input
         className="popup__text popup__text_profile-description"
@@ -100,7 +80,7 @@ function EditProfilePopup(props) {
         className="popup__error popup__error_visible"
         id="profile-description-error"
       >
-        {formErrors.about}
+        {props.formErrors.about}
       </span>
     </PopupWithForm>
   );

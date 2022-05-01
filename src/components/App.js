@@ -20,6 +20,13 @@ function App() {
   const [cardForDelete, setCardForDelete] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [cards, setCards] = useState([]);
+  const [formErrors, setFormErrors] = useState({
+    name: "",
+    about: "",
+    link: "",
+    avatar: "",
+  });
+  const [formValid, setFormValid] = useState(false);
 
   useEffect(() => {
     api
@@ -37,16 +44,34 @@ function App() {
       });
   }, []);
 
+  useEffect(() => {
+    setFormValid(!Object.values(formErrors).some((item) => item !== ""));
+  }, [formErrors]);
+
+  const clearErrors = () => {
+    for (let key in formErrors) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [key]: "",
+      }));
+    }
+  };
+
   const handleEditAvatarClick = () => {
     setIsEditAvatarPopupOpen(true);
+    clearErrors();
+    setFormValid(false);
   };
 
   const handleEditProfileClick = () => {
     setIsEditProfilePopupOpen(true);
+    clearErrors();
+    setFormValid(false);
   };
 
   const handleAddPlaceClick = () => {
     setIsAddPlacePopupOpen(true);
+    clearErrors();
   };
 
   const handleCardClick = (card) => {
@@ -117,6 +142,69 @@ function App() {
       .catch((error) => console.log(error));
   };
 
+  const validateField = (field, value) => {
+    if (value == 0) setFormValid(false);
+    switch (field) {
+      case "name":
+        if (value.length >= 2 && value.length <= 40) {
+          setFormErrors((prev) => ({
+            ...prev,
+            [field]: "",
+          }));
+        } else {
+          setFormErrors((prev) => ({
+            ...prev,
+            [field]: "Недопустимое количество символов",
+          }));
+        }
+        break;
+      case "about":
+        if (value.length >= 2 && value.length <= 40) {
+          setFormErrors((prev) => ({
+            ...prev,
+            [field]: "",
+          }));
+        } else {
+          setFormErrors((prev) => ({
+            ...prev,
+            [field]: "Недопустимое количество символов",
+          }));
+        }
+        break;
+      case "link":
+        if (value.match(/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*$/i)) {
+          setFormErrors((prev) => ({
+            ...prev,
+            [field]: "",
+          }));
+        } else {
+          setFormErrors((prev) => ({
+            ...prev,
+            [field]: "Пожалуйста, введите ссылку на изображение",
+          }));
+        }
+        break;
+      case "avatar":
+        if (value.match(/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*$/i)) {
+          setFormErrors((prev) => ({
+            ...prev,
+            [field]: "",
+          }));
+        } else {
+          setFormErrors((prev) => ({
+            ...prev,
+            [field]: "Пожалуйста, введите ссылку на изображение",
+          }));
+        }
+        break;
+      default:
+        console.log(
+          "Ошибка! Проверочное поле не совпало ни с одним из условий."
+        );
+        break;
+    }
+  };
+
   const closeAllPopups = (event) => {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
@@ -141,18 +229,27 @@ function App() {
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
           onUpdateUser={handleUpdateUser}
+          formErrors={formErrors}
+          validateField={validateField}
+          formValid={formValid}
         />
 
         <EditAvatarPopup
           isOpen={isEditAvatarPopupOpen}
           onClose={closeAllPopups}
           onUpdateAvatar={handleUpdateAvatar}
+          formErrors={formErrors}
+          validateField={validateField}
+          formValid={formValid}
         />
 
         <AddPlacePopup
           isOpen={isAddPlacePopupOpen}
           onClose={closeAllPopups}
           onAddPlaces={handleAddPlace}
+          formErrors={formErrors}
+          validateField={validateField}
+          formValid={formValid}
         />
 
         <ImagePopup card={selectedCard} onClose={closeAllPopups} />

@@ -3,16 +3,10 @@ import PopupWithForm from "./PopupWithForm.js";
 
 function AddPlacePopup(props) {
   const [values, setValues] = useState({ name: "", link: "" });
-  const [formErrors, setFormErrors] = useState({ name: "", link: "" });
-  const [formValid, setFormValid] = useState(false);
 
   useEffect(() => {
     setValues({ name: "", link: "" });
   }, [props.isOpen]);
-
-  useEffect(() => {
-    setFormValid(!Object.values(formErrors).some((item) => item !== ""));
-  }, [formErrors]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -20,52 +14,13 @@ function AddPlacePopup(props) {
       ...prev,
       [name]: value,
     }));
-    validateField(name, value);
-    console.log(formValid);
-  };
-
-  const validateField = (field, value) => {
-    switch (field) {
-      case "name":
-        if (value.length >= 2 && value.length <= 40) {
-          setFormErrors((prev) => ({
-            ...prev,
-            [field]: "",
-          }));
-        } else {
-          setFormErrors((prev) => ({
-            ...prev,
-            [field]: "Недопустимое количество символов",
-          }));
-        }
-        break;
-      case "link":
-        if (value.match(/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*$/i)) {
-          setFormErrors((prev) => ({
-            ...prev,
-            [field]: "",
-          }));
-        } else {
-          setFormErrors((prev) => ({
-            ...prev,
-            [field]: "Пожалуйста, введите ссылку на изображение",
-          }));
-        }
-        break;
-      default:
-        console.log("Error!");
-        break;
-    }
+    props.validateField(name, value);
   };
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (
-      formValid ||
-      (values.name.length >= 2 &&
-        values.name.length <= 40 &&
-        values.link.match(/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*$/i))
-    ) {
+    const isFieldsNotEmpty = Object.values(values).some((item) => item !== "");
+    if (props.formValid && isFieldsNotEmpty) {
       props.onAddPlaces({
         name: values.name,
         link: values.link,
@@ -82,7 +37,7 @@ function AddPlacePopup(props) {
       isOpen={props.isOpen}
       onClose={props.onClose}
       onSubmit={(e) => handleSubmit(e)}
-      formValid={formValid}
+      formValid={props.formValid}
     >
       <input
         className="popup__text popup__text_card-name"
@@ -97,7 +52,7 @@ function AddPlacePopup(props) {
         onChange={handleChange}
       />
       <span className="popup__error popup__error_visible" id="card-name-error">
-        {formErrors.name}
+        {props.formErrors.name}
       </span>
       <input
         className="popup__text popup__text_card-link"
@@ -110,7 +65,7 @@ function AddPlacePopup(props) {
         onChange={handleChange}
       />
       <span className="popup__error popup__error_visible" id="card-link-error">
-        {formErrors.link}
+        {props.formErrors.link}
       </span>
     </PopupWithForm>
   );
